@@ -1,0 +1,29 @@
+{
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "17.2.3",
+    "express": "5.2.1",
+    "mongoose": "^9.1.5",
+    "nodemon": "3.1.11",
+    "typescript-express-templates": "^1.1.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "5.0.6",
+    "@types/node": "25.1.0",
+    "dotenv": "^17.2.3",
+    "eslint": "^9.39.2",
+    "express": "^5.2.1",
+    "install": "^0.13.0",
+    "nodemon": "^3.1.11",
+    "npm": "^11.8.0",
+    "prettier": "^3.8.1",
+    "ts-node": "10.9.2",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "start": "npx nodemon ./dist/src/server.js",
+    "dev_BE": "npx nodemon ./src/server.ts"
+  }
+}
