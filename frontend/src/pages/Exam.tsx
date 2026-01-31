@@ -58,7 +58,7 @@ export default function Exam() {
                 <Typography variant="h6">{current + 1}. {q.question}</Typography>
 
                 {q.image && (
-                    <img src={`http://localhost:3000/images/${q.image}`} style={{ maxWidth: '100%', marginTop: 12 }} />
+                    <img src={q.image} style={{ maxWidth: '100%', marginTop: 12 }} />
                 )}
 
                 {q.type === 'single' && <SingleChoice question={q} onAnswer={a => setAnswers({ ...answers, [q._id]: a })} />}
