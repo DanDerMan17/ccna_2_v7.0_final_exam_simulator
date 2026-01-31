@@ -3,7 +3,6 @@ export type MatchPair = {
     right: string;
 };
 
-
 export type Question = {
     _id: string;
     number: number;
@@ -14,3 +13,5 @@ export type Question = {
     correctAnswers: string[];
     matchPairs: MatchPair[];
 };
+
+export type Answer = string | string[] | string[];

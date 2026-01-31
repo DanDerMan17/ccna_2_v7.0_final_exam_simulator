@@ -1,22 +1,29 @@
 import { useEffect, useState } from 'react';
-import { Typography } from '@mui/material';
+import './Timer.css';
 
-const TOTAL = 75 * 60;
+const TOTAL_SECONDS = 75 * 60; // 75 minutes
 
 export default function Timer() {
-    const [time, setTime] = useState(TOTAL);
+    const [seconds, setSeconds] = useState(TOTAL_SECONDS);
 
     useEffect(() => {
-        const t = setInterval(() => setTime(t => t - 1), 1000);
-        return () => clearInterval(t);
+        const interval = setInterval(() => {
+            setSeconds((prev) => (prev > 0 ? prev - 1 : 0));
+        }, 1000);
+
+        return () => clearInterval(interval);
     }, []);
 
-    const min = Math.floor(time / 60);
-    const sec = time % 60;
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    const isLowTime = seconds < 300; // Less than 5 minutes
 
     return (
-        <Typography variant="h6" color={time < 300 ? 'error' : 'primary'}>
-            ⏱ {min}:{sec.toString().padStart(2, '0')}
-        </Typography>
+        <div className={`timer ${isLowTime ? 'timer--warning' : ''}`}>
+            <span className="timer__icon">⏱</span>
+            <span className="timer__time">
+        {minutes.toString().padStart(2, '0')}:{secs.toString().padStart(2, '0')}
+      </span>
+        </div>
     );
 }

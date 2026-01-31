@@ -1,101 +1,164 @@
-import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
-import { Box, Card, Typography, Button } from '@mui/material';
 import { useState } from 'react';
-import type {Question} from '../types/Question';
+import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
+import type { Question } from '../types/Question';
+import './MatchQuestion.css';
 
-function shuffle<T>(array: T[]): T[] {
-    return [...array].sort(() => Math.random() - 0.5);
+interface MatchQuestionProps {
+    question: Question;
+    userAnswer: string[] | null;
+    onAnswer: (answers: string[]) => void;
+    isChecked: boolean;
 }
 
-export default function MatchQuestion({ question, onAnswer }: { question: Question; onAnswer: (a: any) => void }) {
-    const left = question.matchPairs.map(p => p.left);
-    const right = shuffle(question.matchPairs.map(p => p.right));
+function shuffle<T>(array: T[]): T[] {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
 
-    const [items, setItems] = useState(right);
-    const [checked, setChecked] = useState(false);
+export default function MatchQuestion({ question, userAnswer, onAnswer, isChecked }: MatchQuestionProps) {
+    const leftItems = question.matchPairs.map((p) => p.left);
+    const correctOrder = question.matchPairs.map((p) => p.right);
 
-    const onDragEnd = (result: DropResult) => {
-        if (!result.destination) return;
+    // Right items pool
+    const [rightItems, setRightItems] = useState<string[]>(
+        userAnswer
+            ? question.matchPairs
+                .map((_, i) => userAnswer[i])
+                .filter((x): x is string => !!x)
+            : shuffle(correctOrder)
+    );
 
-        const newItems = Array.from(items);
-        const [moved] = newItems.splice(result.source.index, 1);
-        newItems.splice(result.destination.index, 0, moved);
+    // Left assigned items
+    const [assignedItems, setAssignedItems] = useState<(string | null)[]>(
+        userAnswer && userAnswer.length === correctOrder.length
+            ? userAnswer
+            : Array(leftItems.length).fill(null)
+    );
 
-        setItems(newItems);
-    };
+    const handleDragEnd = (result: DropResult) => {
+        if (!result.destination || isChecked) return;
 
-    const check = () => {
-        const correct = question.matchPairs.map(p => p.right);
-        const ok = JSON.stringify(items) === JSON.stringify(correct);
+        const { source, destination, draggableId } = result;
 
-        setChecked(true);
-        onAnswer(items);
-        return ok;
+        // Dragging within right column (reorder)
+        if (source.droppableId === 'right-column' && destination.droppableId === 'right-column') {
+            const items = Array.from(rightItems);
+            const [moved] = items.splice(source.index, 1);
+            items.splice(destination.index, 0, moved);
+            setRightItems(items);
+        }
+
+        // Drag from right column to left slot
+        if (source.droppableId === 'right-column' && destination.droppableId.startsWith('left-')) {
+            const targetIndex = Number(destination.droppableId.split('-')[1]);
+
+            const newAssigned = [...assignedItems];
+            newAssigned[targetIndex] = draggableId;
+
+            const newRightItems = rightItems.filter((item) => item !== draggableId);
+
+            setAssignedItems(newAssigned);
+            setRightItems(newRightItems);
+            onAnswer(newAssigned);
+        }
+
+        // Drag back from left slot to right column
+        if (source.droppableId.startsWith('left-') && destination.droppableId === 'right-column') {
+            const sourceIndex = Number(source.droppableId.split('-')[1]);
+
+            const newAssigned = [...assignedItems];
+            const removed = newAssigned[sourceIndex];
+            newAssigned[sourceIndex] = null;
+
+            if (removed) {
+                const newRightItems = Array.from(rightItems);
+                newRightItems.splice(destination.index, 0, removed);
+                setRightItems(newRightItems);
+            }
+
+            setAssignedItems(newAssigned);
+            onAnswer(newAssigned);
+        }
     };
 
     return (
-        <Box mt={2}>
-            <DragDropContext onDragEnd={onDragEnd}>
-                <Box display="flex" gap={2}>
+        <div className="match">
+            <div className="match__hint">Drag the items on the right to match with the left</div>
 
-                    {/* LEFT SIDE */}
-                    <Box flex={1}>
-                        {left.map(l => (
-                            <Card key={l} sx={{ p: 1, mb: 1 }}>
-                                <Typography>{l}</Typography>
-                            </Card>
-                        ))}
-                    </Box>
+            <DragDropContext onDragEnd={handleDragEnd}>
+                <div className="match__container">
+                    {/* Left column - individual droppables */}
+                    <div className="match__column">
+                        <div className="match__header">Category</div>
+                        {leftItems.map((item, index) => {
+                            const assignedItem = assignedItems[index];
+                            const isThisCorrect = isChecked && assignedItem === correctOrder[index];
+                            const isThisIncorrect = isChecked && assignedItem && assignedItem !== correctOrder[index];
 
-                    {/* RIGHT SIDE */}
-                    <Droppable droppableId="right">
+                            return (
+                                <Droppable droppableId={`left-${index}`} key={index}>
+                                    {(provided, snapshot) => (
+                                        <div
+                                            ref={provided.innerRef}
+                                            {...provided.droppableProps}
+                                            className={`match__item match__item--target ${
+                                                snapshot.isDraggingOver ? 'match__item--active' : ''
+                                            } ${isThisCorrect ? 'match__item--correct' : ''} ${
+                                                isThisIncorrect ? 'match__item--incorrect' : ''
+                                            }`}
+                                        >
+                                            <div className="match__number">{index + 1}</div>
+                                            <div className="match__content">{item}</div>
+                                            <div className="match__assigned">{assignedItem || 'Drop here'}</div>
+                                            {provided.placeholder}
+                                        </div>
+                                    )}
+                                </Droppable>
+                            );
+                        })}
+                    </div>
+
+                    {/* Right column - draggable items */}
+                    <Droppable droppableId="right-column" direction="vertical">
                         {(provided) => (
-                            <Box
-                                flex={1}
+                            <div
+                                className="match__column"
                                 ref={provided.innerRef}
                                 {...provided.droppableProps}
                             >
-                                {items.map((r, i) => (
-                                    <Draggable key={r} draggableId={r} index={i}>
-                                        {(provided) => (
-                                            <Card
+                                <div className="match__header">Match</div>
+                                {rightItems.map((item, index) => (
+                                    <Draggable
+                                        key={`${item}-${index}`}
+                                        draggableId={item}
+                                        index={index}
+                                        isDragDisabled={isChecked}
+                                    >
+                                        {(provided, snapshot) => (
+                                            <div
                                                 ref={provided.innerRef}
                                                 {...provided.draggableProps}
                                                 {...provided.dragHandleProps}
-                                                sx={{ p: 1, mb: 1, cursor: 'grab' }}
+                                                className={`match__item match__item--draggable ${
+                                                    snapshot.isDragging ? 'match__item--dragging' : ''
+                                                }`}
                                             >
-                                                <Typography>{r}</Typography>
-                                            </Card>
+                                                <div className="match__drag">⋮⋮</div>
+                                                <div className="match__content">{item}</div>
+                                            </div>
                                         )}
                                     </Draggable>
                                 ))}
                                 {provided.placeholder}
-                            </Box>
+                            </div>
                         )}
                     </Droppable>
-
-                </Box>
+                </div>
             </DragDropContext>
-
-            <Button
-                variant="outlined"
-                sx={{ mt: 2 }}
-                onClick={() => check()}
-            >
-                Check
-            </Button>
-
-            {checked && (
-                <Typography
-                    sx={{ mt: 1 }}
-                    color={JSON.stringify(items) === JSON.stringify(question.matchPairs.map(p => p.right)) ? 'green' : 'red'}
-                >
-                    {JSON.stringify(items) === JSON.stringify(question.matchPairs.map(p => p.right))
-                        ? 'Correct!'
-                        : 'Wrong!'}
-                </Typography>
-            )}
-
-        </Box>
+        </div>
     );
 }

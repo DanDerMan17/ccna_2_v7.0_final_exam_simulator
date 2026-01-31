@@ -1,0 +1,144 @@
+.match {
+    margin-top: 1.5rem;
+}
+
+.match__hint {
+    font-size: 0.875rem;
+    color: var(--text-light);
+    font-style: italic;
+    margin-bottom: 1rem;
+}
+
+.match__container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.match__column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.match__header {
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-light);
+    padding: 0.5rem 0;
+    border-bottom: 2px solid var(--border);
+}
+
+.match__dropzone {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-height: 200px;
+    transition: background 0.2s ease;
+}
+
+.match__dropzone--active {
+    background: #f1f5f9;
+    border-radius: 8px;
+}
+
+.match__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.match__item--static {
+    cursor: default;
+}
+
+.match__item--draggable {
+    cursor: grab;
+}
+
+.match__item--draggable:active {
+    cursor: grabbing;
+}
+
+.match__item--dragging {
+    opacity: 0.5;
+    transform: rotate(2deg);
+    box-shadow: var(--shadow-lg);
+}
+
+.match__number {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: white;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.match__drag {
+    flex-shrink: 0;
+    color: var(--text-light);
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: grab;
+    user-select: none;
+}
+
+.match__item--draggable:active .match__drag {
+    cursor: grabbing;
+}
+
+.match__content {
+    flex: 1;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--text);
+}
+
+.match__status {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 50%;
+}
+
+.match__item--correct {
+    background: #f0fdf4;
+    border-color: var(--success);
+}
+
+.match__item--correct .match__status {
+    color: var(--success);
+}
+
+.match__item--incorrect {
+    background: #fef2f2;
+    border-color: var(--error);
+}
+
+.match__item--incorrect .match__status {
+    color: var(--error);
+}
+
+@media (max-width: 768px) {
+    .match__container {
+        grid-template-columns: 1fr;
+    }
+}

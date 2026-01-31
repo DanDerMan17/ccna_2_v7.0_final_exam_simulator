@@ -1,39 +1,76 @@
-import { Checkbox, FormControlLabel, Button } from '@mui/material';
 import { useState } from 'react';
-import type {Question} from '../types/Question';
+import type { Question } from '../types/Question';
+import './QuestionOptions.css';
 
+interface MultipleChoiceProps {
+    question: Question;
+    userAnswer: string[] | null;
+    onAnswer: (answers: string[]) => void;
+    isChecked: boolean;
+}
 
-export default function MultipleChoice({ question, onAnswer }: { question: Question, onAnswer: (a: string[]) => void }) {
-    const [values, setValues] = useState<string[]>([]);
-    const [checked, setChecked] = useState(false);
+export default function MultipleChoice({ question, userAnswer, onAnswer, isChecked }: MultipleChoiceProps) {
+    const [selected, setSelected] = useState<string[]>(userAnswer || []);
 
+    const handleToggle = (answer: string) => {
+        const newSelected = selected.includes(answer)
+            ? selected.filter((a) => a !== answer)
+            : [...selected, answer];
 
-    const toggle = (v: string) => {
-        setValues(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v]);
+        setSelected(newSelected);
+        onAnswer(newSelected);
     };
 
-
-    const isCorrect = JSON.stringify([...values].sort()) === JSON.stringify([...question.correctAnswers].sort());
-
+    const correctSet = new Set(question.correctAnswers);
+    const selectedSet = new Set(selected);
+    const isFullyCorrect =
+        correctSet.size === selectedSet.size &&
+        [...correctSet].every((a) => selectedSet.has(a));
 
     return (
-        <>
-            {question.answers.map(a => (
-                <FormControlLabel
-                    key={a}
-                    control={<Checkbox checked={values.includes(a)} onChange={() => toggle(a)} />}
-                    label={a}
-                />
-            ))}
+        <div className="options">
+            <div className="options__hint">Select all that apply</div>
+            {question.answers.map((answer, index) => {
+                const isSelected = selected.includes(answer);
+                const isCorrectAnswer = correctSet.has(answer);
 
+                let className = 'option';
+                if (isSelected) {
+                    className += ' option--selected';
+                }
+                if (isChecked) {
+                    if (isCorrectAnswer) {
+                        className += ' option--correct';
+                    } else if (isSelected && !isCorrectAnswer) {
+                        className += ' option--incorrect';
+                    }
+                }
 
-            <Button
-                variant="outlined"
-                onClick={() => { setChecked(true); onAnswer(values); }}
-                sx={{ mt: 1, color: checked ? (isCorrect ? 'green' : 'red') : undefined }}
-            >
-                Check
-            </Button>
-        </>
+                return (
+                    <label key={index} className={className}>
+                        <input
+                            type="checkbox"
+                            value={answer}
+                            checked={isSelected}
+                            onChange={() => handleToggle(answer)}
+                            disabled={isChecked}
+                            className="option__input"
+                        />
+                        <span className="option__indicator">
+              <span className="option__checkbox">
+                {isSelected && '✓'}
+              </span>
+            </span>
+                        <span className="option__text">{answer}</span>
+                        {isChecked && isCorrectAnswer && (
+                            <span className="option__icon">✓</span>
+                        )}
+                        {isChecked && isSelected && !isCorrectAnswer && (
+                            <span className="option__icon">✗</span>
+                        )}
+                    </label>
+                );
+            })}
+        </div>
     );
 }

@@ -1,13 +1,8 @@
-import './App.css'
-import Exam from "./pages/Exam.tsx";
+import Exam from './pages/Exam';
+import './styles/global.css';
 
 function App() {
-
-  return (
-    <>
-        <Exam></Exam>
-    </>
-  )
+    return <Exam />;
 }
 
-export default App
+export default App;

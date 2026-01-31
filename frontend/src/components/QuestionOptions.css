@@ -1,0 +1,127 @@
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.options__hint {
+    font-size: 0.875rem;
+    color: var(--text-light);
+    font-style: italic;
+    margin-bottom: 0.5rem;
+}
+
+.option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.option:hover:not(.option--correct):not(.option--incorrect) {
+    border-color: var(--primary);
+    background: #f1f5f9;
+}
+
+.option__input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.option__indicator {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.option__radio {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.option--selected .option__radio {
+    border-color: var(--primary);
+    background: var(--primary);
+}
+
+.option--selected .option__radio::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+}
+
+.option__checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.option--selected .option__checkbox {
+    border-color: var(--primary);
+    background: var(--primary);
+}
+
+.option__text {
+    flex: 1;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--text);
+}
+
+.option__icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 50%;
+}
+
+.option--correct {
+    background: #f0fdf4;
+    border-color: var(--success);
+}
+
+.option--correct .option__icon {
+    color: var(--success);
+}
+
+.option--incorrect {
+    background: #fef2f2;
+    border-color: var(--error);
+}
+
+.option--incorrect .option__icon {
+    color: var(--error);
+}
