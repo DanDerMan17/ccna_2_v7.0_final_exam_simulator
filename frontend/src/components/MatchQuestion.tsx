@@ -113,7 +113,10 @@ export default function MatchQuestion({ question, userAnswer, onAnswer, isChecke
                                         >
                                             <div className="match__number">{index + 1}</div>
                                             <div className="match__content">{item}</div>
-                                            <div className="match__assigned">{assignedItem || 'Drop here'}</div>
+                                            <div className="match__assigned" style={{ fontWeight: 'bold' }}>
+                                                {assignedItem || 'Drop here'}
+                                            </div>
+
                                             {provided.placeholder}
                                         </div>
                                     )}
