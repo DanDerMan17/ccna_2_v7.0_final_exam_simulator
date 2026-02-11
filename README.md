@@ -50,7 +50,7 @@ This application provides a responsive exam interface, randomized questions, tim
 ## Installation & Setup
 1. Clone the Repository
 ````bash
-git clone https://github.com/yourusername/ccna_2_v7.0_final_exam_simulator.git
+[git clone https://github.com/yourusername/ccna_2_v7.0_final_exam_simulator.git](https://github.com/DanDerMan17/ccna_2_v7.0_final_exam_simulator.git)
 cd ccna_2_v7.0_final_exam_simulator
 ````
 
